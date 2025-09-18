@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuestLog - 회원가입</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 로그인 폼 -->
+        <div class="login-form" id="loginForm">
+            <h1>QuestLog 로그인</h1>
+            
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginUserId">아이디</label>
+                    <input type="text" id="loginUserId" name="userId" required>
+                    <span class="error" id="loginUserIdError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">비밀번호</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                    <span class="error" id="loginPasswordError"></span>
+                </div>
+                
+                <button type="submit" class="login-btn">로그인</button>
+            </form>
+            
+            <div class="form-switch">
+                <p>계정이 없으신가요? <a href="#" id="showSignup">회원가입</a></p>
+                <p>아이디를 잊으셨나요? <a href="#" id="showFindId">아이디 찾기</a></p>
+                <p>비밀번호를 잊으셨나요? <a href="#" id="showFindPassword">비밀번호 찾기</a></p>
+            </div>
+            
+            <div id="loginResult" class="result"></div>
+        </div>
+
+        <!-- 아이디 찾기 폼 -->
+        <div class="find-id-form" id="findIdForm" style="display: none;">
+            <h1>아이디 찾기</h1>
+            
+            <!-- 1단계: 사용자 정보 입력 -->
+            <div id="findIdStep1">
+                <form id="findIdFormElement">
+                    <div class="form-group">
+                        <label for="findIdUsername">사용자 이름</label>
+                        <input type="text" id="findIdUsername" name="username" required>
+                        <span class="error" id="findIdUsernameError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="findIdEmail">이메일</label>
+                        <input type="email" id="findIdEmail" name="email" required>
+                        <span class="error" id="findIdEmailError"></span>
+                    </div>
+                    
+                    <button type="submit" class="find-id-btn">인증번호 발송</button>
+                </form>
+            </div>
+            
+            <!-- 2단계: 인증번호 입력 -->
+            <div id="findIdStep2" style="display: none;">
+                <form id="verifyCodeFormElement">
+                    <div class="form-group">
+                        <label for="verificationCode">인증번호</label>
+                        <input type="text" id="verificationCode" name="code" placeholder="6자리 숫자" maxlength="6" required>
+                        <span class="error" id="verificationCodeError"></span>
+                    </div>
+                    
+                    <button type="submit" class="verify-btn">확인</button>
+                    <button type="button" class="resend-btn" id="resendCodeBtn">인증번호 재발송</button>
+                </form>
+            </div>
+            
+            <!-- 3단계: 아이디 찾기 결과 -->
+            <div id="findIdStep3" style="display: none;">
+                <div class="result-display">
+                    <h3>아이디 찾기 완료</h3>
+                    <div class="user-info">
+                        <p><strong>사용자 이름:</strong> <span id="resultUsername"></span></p>
+                        <p><strong>아이디:</strong> <span id="resultUserId"></span></p>
+                        <p><strong>이메일:</strong> <span id="resultEmail"></span></p>
+                    </div>
+                    <button type="button" class="login-redirect-btn" id="goToLoginBtn">로그인하기</button>
+                </div>
+            </div>
+            
+            <div class="form-switch">
+                <p><a href="#" id="backToLogin">로그인으로 돌아가기</a></p>
+            </div>
+            
+            <div id="findIdResult" class="result"></div>
+        </div>
+
+        <!-- 비밀번호 찾기 폼 -->
+        <div class="find-password-form" id="findPasswordForm" style="display: none;">
+            <h1>비밀번호 찾기</h1>
+            <p class="form-description">이메일로 새로운 비밀번호가 전송됩니다.</p>
+            
+            <form id="findPasswordFormElement">
+                <div class="form-group">
+                    <label for="findPasswordUsername">사용자 이름</label>
+                    <input type="text" id="findPasswordUsername" name="username" placeholder="Enter your Name" required>
+                    <span class="error" id="findPasswordUsernameError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="findPasswordUserId">아이디</label>
+                    <input type="text" id="findPasswordUserId" name="userId" placeholder="Enter your ID" required>
+                    <span class="error" id="findPasswordUserIdError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="findPasswordEmail">이메일</label>
+                    <input type="email" id="findPasswordEmail" name="email" placeholder="Enter your Email" required>
+                    <span class="error" id="findPasswordEmailError"></span>
+                </div>
+                
+                <button type="submit" class="find-password-btn">비밀번호 찾기</button>
+            </form>
+            
+            <div class="form-switch">
+                <p><a href="#" id="backToLoginFromPassword">로그인으로 돌아가기</a></p>
+            </div>
+            
+            <div id="findPasswordResult" class="result"></div>
+        </div>
+
+        <!-- 회원가입 폼 -->
+        <div class="signup-form" id="signupForm" style="display: none;">
+            <h1>QuestLog 회원가입</h1>
+            
+            <form id="signupFormElement">
+                <div class="form-group">
+                    <label for="username">사용자 이름</label>
+                    <input type="text" id="username" name="username" required>
+                    <span class="error" id="usernameError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" required>
+                    <span class="error" id="emailError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userId">아이디</label>
+                    <input type="text" id="userId" name="userId" required>
+                    <span class="error" id="userIdError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required>
+                    <span class="error" id="passwordError"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">비밀번호 확인</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    <span class="error" id="confirmPasswordError"></span>
+                </div>
+                
+                <button type="submit" class="signup-btn">회원가입</button>
+            </form>
+            
+            <div class="form-switch">
+                <p>이미 계정이 있으신가요? <a href="#" id="showLogin">로그인</a></p>
+            </div>
+            
+            <div id="signupResult" class="result"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
