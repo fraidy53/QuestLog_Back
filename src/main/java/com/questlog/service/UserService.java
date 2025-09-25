@@ -21,6 +21,9 @@ public class UserService {
     @Autowired
     private EmailService emailService;
     
+    @Autowired
+    private GameService gameService;
+    
     public User signup(SignupRequest signupRequest) {
         // 비밀번호 일치 확인
         if (!signupRequest.getPassword().equals(signupRequest.getConfirmPassword())) {
@@ -46,7 +49,12 @@ public class UserService {
         );
         
         // 사용자 저장
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        
+        // 게임 데이터 초기화
+        gameService.initializeGameData(savedUser);
+        
+        return savedUser;
     }
     
     public boolean existsByEmail(String email) {
