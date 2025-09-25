@@ -33,6 +33,25 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
     
+    // 게임 상태 필드들
+    @Column(name = "hp", nullable = false)
+    private Integer hp = 100;
+    
+    @Column(name = "max_hp", nullable = false)
+    private Integer maxHp = 100;
+    
+    @Column(name = "exp", nullable = false)
+    private Integer exp = 0;
+    
+    @Column(name = "next_exp", nullable = false)
+    private Integer nextExp = 100;
+    
+    @Column(name = "level", nullable = false)
+    private Integer level = 1;
+    
+    @Column(name = "gold", nullable = false)
+    private Integer gold = 0;
+    
     // 기본 생성자
     public User() {}
     
@@ -83,5 +102,54 @@ public class User {
     
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    // 게임 상태 필드들의 Getters and Setters
+    public Integer getHp() {
+        return hp;
+    }
+    
+    public void setHp(Integer hp) {
+        this.hp = hp;
+    }
+    
+    public Integer getMaxHp() {
+        return maxHp;
+    }
+    
+    public void setMaxHp(Integer maxHp) {
+        this.maxHp = maxHp;
+    }
+    
+    public Integer getExp() {
+        return exp;
+    }
+    
+    public void setExp(Integer exp) {
+        this.exp = exp;
+    }
+    
+    public Integer getNextExp() {
+        return nextExp;
+    }
+    
+    public void setNextExp(Integer nextExp) {
+        this.nextExp = nextExp;
+    }
+    
+    public Integer getLevel() {
+        return level;
+    }
+    
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+    
+    public Integer getGold() {
+        return gold;
+    }
+    
+    public void setGold(Integer gold) {
+        this.gold = gold;
     }
 }
