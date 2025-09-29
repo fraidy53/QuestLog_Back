@@ -1,6 +1,8 @@
 package com.questlog.controller;
 
 import com.questlog.dto.ApiResponse;
+import com.questlog.dto.EquipRequest;
+import com.questlog.dto.EquipResponse;
 import com.questlog.entity.User;
 import com.questlog.entity.Inventory;
 import com.questlog.entity.UserStatus;
@@ -190,6 +192,69 @@ public class GameController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(new ApiResponse(false, "아이템 구매 실패: " + e.getMessage(), null));
+        }
+    }
+    
+    // 아이템 장착
+    @PostMapping("/user/{userId}/equip")
+    public ResponseEntity<EquipResponse> equipItem(@PathVariable Long userId, 
+                                                   @RequestBody EquipRequest request) {
+        try {
+            Map<String, Object> result = gameService.equipItem(userId, request.getItemId());
+            
+            @SuppressWarnings("unchecked")
+            Map<String, String> equipped = (Map<String, String>) result.get("equipped");
+            @SuppressWarnings("unchecked")
+            Map<String, Integer> stats = (Map<String, Integer>) result.get("stats");
+            
+            EquipResponse response = new EquipResponse(
+                true, 
+                "아이템 장착 성공", 
+                equipped, 
+                stats
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            EquipResponse response = new EquipResponse(
+                false, 
+                "아이템 장착 실패: " + e.getMessage(), 
+                null, 
+                null
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
+    // 현재 장착 상태와 스탯 조회
+    @GetMapping("/user/{userId}/equipped")
+    public ResponseEntity<EquipResponse> getEquippedStatus(@PathVariable Long userId) {
+        try {
+            Map<String, Object> result = gameService.getEquippedStatus(userId);
+            
+            @SuppressWarnings("unchecked")
+            Map<String, String> equipped = (Map<String, String>) result.get("equipped");
+            @SuppressWarnings("unchecked")
+            Map<String, Integer> stats = (Map<String, Integer>) result.get("stats");
+            
+            EquipResponse response = new EquipResponse(
+                true, 
+                "장착 상태 조회 성공", 
+                equipped, 
+                stats
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            EquipResponse response = new EquipResponse(
+                false, 
+                "장착 상태 조회 실패: " + e.getMessage(), 
+                null, 
+                null
+            );
+            return ResponseEntity.badRequest().body(response);
         }
     }
 }
