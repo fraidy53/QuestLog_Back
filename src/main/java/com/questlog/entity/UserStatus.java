@@ -26,6 +26,9 @@ public class UserStatus {
     @Column(name = "daily_login_count", nullable = false)
     private Integer dailyLoginCount = 0;
     
+    @Column(name = "boss_ready", nullable = false)
+    private Boolean bossReady = false;
+    
     @Column(name = "created_at", nullable = false)
     private java.time.LocalDateTime createdAt;
     
@@ -84,6 +87,14 @@ public class UserStatus {
         this.dailyLoginCount = dailyLoginCount;
     }
     
+    public Boolean getBossReady() {
+        return bossReady;
+    }
+    
+    public void setBossReady(Boolean bossReady) {
+        this.bossReady = bossReady;
+    }
+    
     public java.time.LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -110,6 +121,7 @@ public class UserStatus {
         this.lastDailyReset = LocalDate.now();
         this.dailyQuestsCompleted = 0;
         this.dailyLoginCount = 0;
+        this.bossReady = false;
         this.updatedAt = java.time.LocalDateTime.now();
     }
 }
