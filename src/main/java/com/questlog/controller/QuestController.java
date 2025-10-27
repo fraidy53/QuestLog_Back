@@ -139,20 +139,22 @@ public class QuestController {
     @PutMapping("/{taskId}/complete")
     public ResponseEntity<ApiResponse> completeTask(
             @PathVariable Long taskId,
-            @RequestParam Long userId) {
+            @RequestParam Long userId,
+            @RequestParam(required = false, defaultValue = "true") boolean isSuccess) {
         
         try {
             User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
             
-            Task task = questService.completeTask(user, taskId);
+            Task task = questService.completeTask(user, taskId, isSuccess);
             TaskResponse response = new TaskResponse(task);
             
-            return ResponseEntity.ok(ApiResponse.success("일정이 완료되었습니다.", response));
+            String message = isSuccess ? "일정이 완료되었습니다." : "일정이 실패했습니다.";
+            return ResponseEntity.ok(ApiResponse.success(message, response));
             
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                .body(ApiResponse.error("일정 완료 처리에 실패했습니다: " + e.getMessage()));
+                .body(ApiResponse.error("일정 처리에 실패했습니다: " + e.getMessage()));
         }
     }
     
