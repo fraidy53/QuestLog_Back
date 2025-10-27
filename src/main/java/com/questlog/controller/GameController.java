@@ -177,7 +177,7 @@ public class GameController {
         }
     }
     
-    // 아이템 구매
+    // 아이템 구매 (레거시)
     @PostMapping("/shop/purchase")
     public ResponseEntity<ApiResponse> purchaseItem(@RequestParam Long userId, 
                                                           @RequestParam String itemId) {
@@ -189,6 +189,19 @@ public class GameController {
                 return ResponseEntity.badRequest()
                     .body(new ApiResponse(false, "아이템 구매 실패", null));
             }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse(false, "아이템 구매 실패: " + e.getMessage(), null));
+        }
+    }
+    
+    // 아이템 구매 (새로운 통합 시스템)
+    @PostMapping("/shop/buy")
+    public ResponseEntity<ApiResponse> buyItem(@RequestParam Long userId, 
+                                                   @RequestParam String itemId) {
+        try {
+            Map<String, Object> result = shopService.buyItem(userId, itemId);
+            return ResponseEntity.ok(new ApiResponse(true, "아이템 구매 성공", result));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(new ApiResponse(false, "아이템 구매 실패: " + e.getMessage(), null));
