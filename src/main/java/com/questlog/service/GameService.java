@@ -84,10 +84,17 @@ public class GameService {
             int nextExp = 100 + (user.getLevel() - 1) * 50;
             user.setNextExp(nextExp);
             
-            // 레벨업 시 최대 HP 증가
+            // 레벨업 시 최대 HP와 공격력 증가
+            // 최대 HP: +10
+            // 공격력: 레벨당 +5 (기본 스탯에 반영됨)
             user.setMaxHp(user.getMaxHp() + 10);
             user.setHp(user.getMaxHp()); // 레벨업 시 HP 풀회복
         }
+    }
+    
+    // 레벨에 따른 기본 공격력 계산
+    public int calculateBaseAttack(Integer level) {
+        return 5 + (level - 1) * 5;
     }
     
     // 골드 추가
@@ -106,6 +113,78 @@ public class GameService {
         checkLevelUp(user);
         
         userRepository.save(user);
+    }
+    
+    // 레벨별 보상 계산 (일정 완료 시)
+    public int calculateTaskExp(Integer level) {
+        // 레벨에 따라 경험치 1씩 증가
+        if (level <= 5) {
+            // 1레벨: 10exp, 5레벨: 14exp
+            return 10 + (level - 1);
+        } else if (level <= 10) {
+            // 6레벨: 16exp, 10레벨: 20exp
+            return 16 + (level - 6);
+        } else if (level <= 15) {
+            // 11레벨: 20exp, 15레벨: 24exp
+            return 20 + (level - 11);
+        } else {
+            // 16레벨 이상: 25exp부터 시작
+            return 25 + (level - 16);
+        }
+    }
+    
+    public int calculateTaskGold(Integer level) {
+        // 1~5레벨: 5G, 6~10레벨: 10G, 11~15레벨: 15G
+        // 5레벨 단위로 골드 5G씩 증가
+        if (level <= 5) {
+            return 5;
+        } else if (level <= 10) {
+            return 10;
+        } else if (level <= 15) {
+            return 15;
+        } else {
+            // 16레벨 이상
+            return 20 + ((level - 16) / 5) * 5;
+        }
+    }
+    
+    // 일정 실패 처리 (체력 감소, 아이템 손실)
+    public void handleTaskFailure(User user) {
+        int damage = 30;
+        
+        // 먼저 데미지를 받음
+        int newHp = Math.max(user.getHp() - damage, 0);
+        user.setHp(newHp);
+        userRepository.save(user);
+        
+        // 체력이 0 이하가 되면 아이템 하나 잃고 체력 회복
+        if (newHp <= 0) {
+            loseRandomItem(user.getId());
+            
+            // 체력 회복
+            user.setHp(user.getMaxHp());
+            userRepository.save(user);
+        }
+    }
+    
+    // 랜덤 아이템 손실
+    private void loseRandomItem(Long userId) {
+        Inventory inventory = getUserInventory(userId);
+        
+        // 인벤토리에서 무기나 갑옷 중 하나 제거
+        if (inventory.getWeaponAtk() > 2 && Math.random() < 0.5) {
+            // 무기 초기화
+            inventory.setWeaponId("starting_weapon");
+            inventory.setWeaponName("스타팅 무기");
+            inventory.setWeaponAtk(2);
+        } else if (inventory.getArmorDef() > 2) {
+            // 갑옷 초기화
+            inventory.setArmorId("starting_armor");
+            inventory.setArmorName("스타팅 갑옷");
+            inventory.setArmorDef(2);
+        }
+        
+        inventoryRepository.save(inventory);
     }
     
     // 골드 소모
@@ -235,7 +314,7 @@ public class GameService {
         equipped.put("armor", inventory.getArmorId());
         
         // 기본 스탯 + 장착 아이템 스탯
-        int baseAtk = 5; // 기본 공격력
+        int baseAtk = calculateBaseAttack(user.getLevel()); // 레벨별 기본 공격력
         int baseDef = 3; // 기본 방어력
         int baseHp = 100; // 기본 HP
         
@@ -265,7 +344,7 @@ public class GameService {
         equipped.put("armor", inventory.getArmorId());
         
         // 기본 스탯 + 장착 아이템 스탯
-        int baseAtk = 5; // 기본 공격력
+        int baseAtk = calculateBaseAttack(user.getLevel()); // 레벨별 기본 공격력
         int baseDef = 3; // 기본 방어력
         
         stats.put("atk", baseAtk + inventory.getWeaponAtk());
