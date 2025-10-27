@@ -27,11 +27,9 @@ public class QuestService {
     @Autowired
     private GameService gameService;
     
-    // 일정당 경험치와 골드
-    private static final int TASK_EXP = 10;
-    private static final int TASK_GOLD = 5;
+    // 보너스 보상 (하루 일정 모두 완료)
     private static final int BONUS_EXP = 50;
-    private static final int BONUS_GOLD = 25;
+    private static final int BONUS_GOLD = 15;
     
     // 일정 생성
     public Task createTask(User user, String title, String memo, Task.TaskCategory category, 
@@ -62,7 +60,7 @@ public class QuestService {
     }
     
     // 일정 완료 처리
-    public Task completeTask(User user, Long taskId) {
+    public Task completeTask(User user, Long taskId, boolean isSuccess) {
         checkAndResetDaily(user);
         
         Optional<Task> taskOpt = taskRepository.findByTaskIdAndUser(taskId, user);
@@ -71,19 +69,36 @@ public class QuestService {
         }
         
         Task task = taskOpt.get();
-        if (task.getStatus() == Task.TaskStatus.DONE) {
-            throw new IllegalArgumentException("이미 완료된 일정입니다.");
+        
+        // 이미 완료된 일정인지 체크
+        if (task.getStatus() == Task.TaskStatus.DONE || task.getStatus() == Task.TaskStatus.FAIL) {
+            throw new IllegalArgumentException("이미 처리된 일정입니다.");
         }
         
-        // 일정 완료 처리
-        task.setStatus(Task.TaskStatus.DONE);
-        Task savedTask = taskRepository.save(task);
+        Task savedTask;
         
-        // 경험치와 골드 지급
-        gameService.addExpAndGold(user, TASK_EXP, TASK_GOLD);
-        
-        // 오늘의 모든 일정 완료 여부 체크
-        checkAllTasksCompleted(user);
+        if (isSuccess) {
+            // 일정 성공 처리
+            task.setStatus(Task.TaskStatus.DONE);
+            savedTask = taskRepository.save(task);
+            
+            // 레벨별 보상 계산
+            int expGain = gameService.calculateTaskExp(user.getLevel());
+            int goldGain = gameService.calculateTaskGold(user.getLevel());
+            
+            // 경험치와 골드 지급
+            gameService.addExpAndGold(user, expGain, goldGain);
+            
+            // 오늘의 모든 일정 완료 여부 체크
+            checkAllTasksCompleted(user);
+        } else {
+            // 일정 실패 처리
+            task.setStatus(Task.TaskStatus.FAIL);
+            savedTask = taskRepository.save(task);
+            
+            // 체력 감소 및 아이템 손실 처리
+            gameService.handleTaskFailure(user);
+        }
         
         return savedTask;
     }
@@ -138,10 +153,17 @@ public class QuestService {
     private void checkAllTasksCompleted(User user) {
         LocalDate today = LocalDate.now();
         Long totalTasks = taskRepository.countTotalTasksToday(user, today);
-        Long completedTasks = taskRepository.countCompletedTasksToday(user, today);
         
-        if (totalTasks > 0 && totalTasks.equals(completedTasks)) {
-            // 모든 일정 완료 - 보너스 지급
+        // 오늘 날짜의 모든 일정 조회
+        List<Task> tasks = taskRepository.findTodayTasksByUser(user, today);
+        
+        // 성공한 일정만 카운트 (FAIL은 제외)
+        long completedTasks = tasks.stream()
+            .filter(task -> task.getStatus() == Task.TaskStatus.DONE)
+            .count();
+        
+        if (totalTasks > 0 && totalTasks == completedTasks && tasks.size() == totalTasks) {
+            // 모든 일정 성공 완료 - 보너스 지급 (50exp, 15G)
             gameService.addExpAndGold(user, BONUS_EXP, BONUS_GOLD);
             
             // 보스전 가능 플래그 설정
