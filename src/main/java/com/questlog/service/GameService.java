@@ -212,6 +212,12 @@ public class GameService {
                 inventory.setArmorId(shopItem.getItemId());
                 inventory.setArmorName(shopItem.getName());
                 inventory.setArmorDef(shopItem.getStatValue());
+                // 펫 착용 시 최대 HP 증가 (갑옷이 펫이면)
+                increaseMaxHpForPet(user, shopItem);
+                break;
+            case PET:
+                // 펫 착용 시 최대 HP +50
+                increaseMaxHpForPet(user, shopItem);
                 break;
             default:
                 throw new IllegalArgumentException("장착할 수 없는 아이템 타입입니다.");
@@ -272,5 +278,16 @@ public class GameService {
         result.put("stats", stats);
         
         return result;
+    }
+    
+    // 펫 장착 시 최대 HP 증가 (+50)
+    private void increaseMaxHpForPet(User user, ShopItem petItem) {
+        // 펫은 statType이 "hp_boost"로 되어 있을 것으로 가정
+        if ("hp_boost".equals(petItem.getStatType()) || petItem.getType() == ShopItem.ItemType.PET) {
+            // 최대 HP +50 증가
+            user.setMaxHp(user.getMaxHp() + 50);
+            user.setHp(user.getHp() + 50); // 현재 HP도 함께 증가
+            userRepository.save(user);
+        }
     }
 }
