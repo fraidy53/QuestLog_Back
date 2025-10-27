@@ -66,7 +66,8 @@ public class Task {
     // 상태 열거형
     public enum TaskStatus {
         PENDING("pending"),
-        DONE("done");
+        DONE("done"),
+        FAIL("fail");
         
         private final String value;
         
