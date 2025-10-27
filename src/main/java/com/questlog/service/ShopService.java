@@ -102,8 +102,11 @@ public class ShopService {
                 // 펫 추가 (JSON 배열)
                 addPetToInventory(inventory, shopItem);
                 // 최대 HP 증가
-                user.setMaxHp(user.getMaxHp() + 50);
-                user.setHp(user.getHp() + 50); // 현재 HP도 함께 증가
+                int currentMaxHp = user.getMaxHp();
+                user.setMaxHp(currentMaxHp + 50);
+                // 현재 HP도 증가시키되 최대 HP를 넘지 않도록
+                int newHp = Math.min(user.getHp() + 50, user.getMaxHp());
+                user.setHp(newHp);
                 userRepository.save(user);
                 break;
         }
