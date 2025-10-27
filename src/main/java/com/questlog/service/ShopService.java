@@ -236,9 +236,42 @@ public class ShopService {
         );
         healPotion.setDescription("HP를 30 회복시켜주는 물약입니다.");
         
+        // 펫 아이템
+        ShopItem pet = new ShopItem(
+            "pet_cute",
+            ShopItem.ItemType.PET,
+            "귀여운 펫",
+            50,
+            "hp_boost",
+            50,
+            ShopItem.Rarity.COMMON
+        );
+        pet.setDescription("최대 HP를 50 증가시켜주는 귀여운 펫입니다.");
+        
         // 데이터베이스에 저장
         shopItemRepository.save(leatherArmor);
         shopItemRepository.save(woodenSword);
         shopItemRepository.save(healPotion);
+        shopItemRepository.save(pet);
+    }
+    
+    // 펫 아이템 추가 (테스트용)
+    public void addPetItemToShop() {
+        // 이미 존재하는지 확인
+        if (shopItemRepository.findById("pet_cute").isPresent()) {
+            return;
+        }
+        
+        ShopItem pet = new ShopItem(
+            "pet_cute",
+            ShopItem.ItemType.PET,
+            "귀여운 펫",
+            50,
+            "hp_boost",
+            50,
+            ShopItem.Rarity.COMMON
+        );
+        pet.setDescription("최대 HP를 50 증가시켜주는 귀여운 펫입니다.");
+        shopItemRepository.save(pet);
     }
 }
