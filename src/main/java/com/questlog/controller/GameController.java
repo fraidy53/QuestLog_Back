@@ -240,6 +240,18 @@ public class GameController {
         }
     }
     
+    // 펫 아이템 추가 (테스트용)
+    @PostMapping("/shop/add-pet")
+    public ResponseEntity<ApiResponse> addPetItem() {
+        try {
+            shopService.addPetItemToShop();
+            return ResponseEntity.ok(new ApiResponse(true, "펫 아이템 추가 성공", null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse(false, "펫 아이템 추가 실패: " + e.getMessage(), null));
+        }
+    }
+    
     // 현재 장착 상태와 스탯 조회
     @GetMapping("/user/{userId}/equipped")
     public ResponseEntity<EquipResponse> getEquippedStatus(@PathVariable Long userId) {
