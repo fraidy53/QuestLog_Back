@@ -84,9 +84,7 @@ public class GameService {
             int nextExp = 100 + (user.getLevel() - 1) * 50;
             user.setNextExp(nextExp);
             
-            // 레벨업 시 최대 HP와 공격력 증가
-            // 최대 HP: +10
-            // 공격력: 레벨당 +5 (기본 스탯에 반영됨)
+            // 레벨업 시 최대 HP 증가
             user.setMaxHp(user.getMaxHp() + 10);
             user.setHp(user.getMaxHp()); // 레벨업 시 HP 풀회복
         }
@@ -158,12 +156,13 @@ public class GameService {
         userRepository.save(user);
         
         // 체력이 0 이하가 되면 아이템 하나 잃고 체력 회복
-        if (newHp <= 0) {
+        if (user.getHp() <= 0) {
             loseRandomItem(user.getId());
             
-            // 체력 회복
-            user.setHp(user.getMaxHp());
-            userRepository.save(user);
+            // 다시 조회해서 갱신된 정보 사용
+            User updatedUser = getUserGameInfo(user.getId());
+            updatedUser.setHp(updatedUser.getMaxHp());
+            userRepository.save(updatedUser);
         }
     }
     
@@ -314,7 +313,7 @@ public class GameService {
         equipped.put("armor", inventory.getArmorId());
         
         // 기본 스탯 + 장착 아이템 스탯
-        int baseAtk = calculateBaseAttack(user.getLevel()); // 레벨별 기본 공격력
+        int baseAtk = 5; // 기본 공격력
         int baseDef = 3; // 기본 방어력
         int baseHp = 100; // 기본 HP
         
@@ -344,7 +343,7 @@ public class GameService {
         equipped.put("armor", inventory.getArmorId());
         
         // 기본 스탯 + 장착 아이템 스탯
-        int baseAtk = calculateBaseAttack(user.getLevel()); // 레벨별 기본 공격력
+        int baseAtk = 5; // 기본 공격력
         int baseDef = 3; // 기본 방어력
         
         stats.put("atk", baseAtk + inventory.getWeaponAtk());
